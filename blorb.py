@@ -1,22 +1,317 @@
 # Copyright (C) 2001 - 2019 David Fillmore
-#
-# This file is part of buffle.
-#
-# buffle is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
-#
-# buffle is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
 
 import iff
 import tempfile
 import os
 import sys
 import babel
+
+class blorb_chunk(iff.form_chunk):
+    subID = 'IFRS'
+
+class resource_index_chunk(iff.chunk):
+    ID = 'RIdx'
+    def process_data(self):
+        self.length = int.from_bytes(self.full_data[4:8], byteorder='big')
+        self.resource_count = int.from_bytes(self.full_data[8:12], byteorder='big')
+        self.resources = {}
+        for r in range(self.resource_count):
+            usage = self.full_data[12+r*12:16+r*12].decode('ascii')
+            resource_number = int.from_bytes(self.full_data[16+r*12:20+r*12], byteorder='big')
+            location = int.from_bytes(self.full_data[20+r*12:24+r*12], byteorder='big')
+            try:
+                self.resources[usage]
+            except:
+                self.resources[usage] = {}
+            self.resources[usage][resource_number] = location
+
+    def create_data(self):
+        pass
+
+# Picture Resource Chunks
+    
+class png_chunk(iff.chunk):
+    ID = 'PNG '
+
+class jpeg_chunk(iff.chunk):
+    ID = 'JPEG'
+
+class rect_chunk(iff.chunk):
+    ID = 'Rect'
+    def process_data(self):
+        self.length = int.from_bytes(self.full_data[4:8], byteorder='big')
+        self.width = int.from_bytes(self.full_data[8:12], byteorder='big')
+        self.height = int.from_bytes(self.full_data[12:16], byteorder='big')
+
+    def create_data(self):
+        self.full_data = self.ID.encode() + self.length.to_bytes(4, 'big') + self.width.to_bytes(4, 'big') + self.height.to_bytes(4, 'big')
+
+# Sound Resource Chunks
+    
+class aiff_chunk(iff.form_chunk):
+    subID = 'AIFF'
+
+class oggv_chunk(iff.chunk):
+    ID = 'OGGV'
+
+class mod_chunk(iff.chunk):
+    ID = 'MOD '
+
+class song_chunk(iff.chunk):
+    ID = 'SONG'
+
+# Data Resource Chunks
+    
+class text_data_chunk(iff.chunk):
+    ID = 'TEXT'
+
+class binary_data_chunk(iff.chunk):
+    ID = 'BINA'
+
+# Executable Resource Chunks
+    
+class zcode_chunk(iff.chunk):
+    ID = 'ZCOD'
+    
+class glulx_chunk(iff.chunk):
+    ID = 'GLUL'
+    
+class tads2_chunk(iff.chunk):
+    ID = 'TAD2'
+    
+class tads3_chunk(iff.chunk):
+    ID = 'TAD3'
+    
+class hugo_chunk(iff.chunk):
+    ID = 'HUGO'
+    
+class alan_chunk(iff.chunk):
+    ID = 'ALAN'
+    
+class adri_chunk(iff.chunk):
+    ID = 'ADRI'
+    
+class level9_chunk(iff.chunk):
+    ID = 'LEVE'
+    
+class agt_chunk(iff.chunk):
+    ID = 'AGT '
+    
+class magnetic_scrolls_chunk(iff.chunk):
+    ID = 'MAGS'
+    
+class advsys_chunk(iff.chunk):
+    ID = 'ADVS'
+    
+class native_executable_chunk(iff.chunk):
+    ID = 'EXEC'
+
+class game_identifier_chunk(iff.chunk):
+    ID = 'IFhd'
+    def process_data(self):
+        self.length = int.from_bytes(self.full_data[4:8], byteorder='big')
+        self.release_number = int.from_bytes(self.full_data[8:12], byteorder='big')
+        self.serial_number = self.full_data[12:18].decode('ascii')
+        self.checksum = int.from_bytes(self.full_data[18:22], byteorder='big')
+        self.PC = int.from_bytes(self.full_data[22:25], byteorder='big')
+            
+    def create_data(self):
+        pass
+
+class color_palette_chunk(iff.chunk):
+    ID = 'Plte'
+    def process_data(self):
+        self.length = int.from_bytes(self.full_data[4:8], byteorder='big')
+        if self.length == 1:
+            self.palette = int.from_bytes(self.full_data[8], byteorder='big')
+        else:
+            self.palette = []
+            colours = self.length // 3
+            for c in range(colours):
+                colour = {}
+                colour['red'] = int.from_bytes(self.full_data[8+c*3], byteorder='big')
+                colour['green'] = int.from_bytes(self.full_data[9+c*3], byteorder='big')
+                colour['blue'] = int.from_bytes(self.full_data[10+c*3], byteorder='big')
+                colours.append(colour)
+
+    def create_data(self):
+        pass
+
+class frontispiece_chunk(iff.chunk):
+    ID = 'Fspc'
+    def process_data(self):
+        self.length = int.from_bytes(self.full_data[4:8], byteorder='big')
+        self.picture_number = int.from_bytes(self.full_data[8:12], byteorder='big')
+
+    def create_data(self):
+        pass
+
+class resource_description_chunk(iff.chunk):
+    ID = 'RDes'
+    def process_data(self):
+        self.length = int.from_bytes(self.full_data[4:8], byteorder='big')
+        entries_count = int.from_bytes(self.full_data[8:12], byteorder='big')
+        self.entries = {}
+        while p < self.length:
+            usage = int.from_bytes(self.full_data[12+p:16+p], byteorder='big')
+            try:
+                self.entries[usage]
+            except:
+                self.entries[usage] = {}
+            number = int.from_bytes(self.full_data[16+p:20+p], byteorder='big')
+            length = int.from_bytes(self.full_data[20+p:24+p], byteorder='big')
+            text = self.full_data[24+d:24+p+length].decode('utf-8')
+            self.entries[usage][number] = text
+            p += 24+length
+            
+        
+
+    def create_data(self):
+        pass
+
+class metadata_chunk(iff.chunk):
+    ID = 'IFmd'
+    def process_data(self):
+        self.length = int.from_bytes(self.full_data[4:8], byteorder='big')
+        self.xml = self.full_data[8:8+self.length].decode('utf-8')
+        
+    def create_data(self):
+        pass
+
+# z-machine chunks
+    
+class release_number_chunk(iff.chunk):
+    ID = 'RelN'
+    def process_data(self):
+        self.length = int.from_bytes(self.full_data[4:8], byteorder='big')
+        self.number = int.from_bytes(self.full_data[8:10], byteorder='big')
+
+    def create_data(self):
+        pass
+
+class resolution_chunk(iff.chunk):
+    ID = 'Reso'
+    def process_data(self):
+        self.length = int.from_bytes(self.full_data[4:8], byteorder='big')
+        self.screen = {}
+        self.screen['standard_width'] = int.from_bytes(self.full_data[8:12], byteorder='big')
+        self.screen['standard_height'] = int.from_bytes(self.full_data[12:16], byteorder='big')
+        self.screen['minimum_width'] = int.from_bytes(self.full_data[16:20], byteorder='big')
+        self.screen['minimum_height'] = int.from_bytes(self.full_data[20:24], byteorder='big')
+        self.screen['maximum_width'] = int.from_bytes(self.full_data[24:28], byteorder='big')
+        self.screen['maximum_height'] = int.from_bytes(self.full_data[28:32], byteorder='big')
+
+        self.images = {}
+        resolutions_count = (self.length - 24) // 28
+
+        for r in range(resolutions_count):
+            image_number = int.from_bytes(self.full_data[32+r*28:36+r*28], byteorder='big')
+            self.images[image_number] = {}
+            self.images[image_number]['standard_numerator'] = int.from_bytes(self.full_data[36+r*28:40+r*28], byteorder='big')
+            self.images[image_number]['standard_denominator'] = int.from_bytes(self.full_data[40+r*28:44+r*28], byteorder='big')
+            self.images[image_number]['minimum_numerator'] = int.from_bytes(self.full_data[44+r*28:48+r*28], byteorder='big')
+            self.images[image_number]['minimum_denominator'] = int.from_bytes(self.full_data[52+r*28:56+r*28], byteorder='big')
+            self.images[image_number]['maximum_numerator'] = int.from_bytes(self.full_data[56+r*28:60+r*28], byteorder='big')
+            self.images[image_number]['maximum_denominator'] = int.from_bytes(self.full_data[60+r*28:64+r*28], byteorder='big')            
+        
+
+    def create_data(self):
+        pass
+
+class adaptive_palette_chunk(iff.chunk):
+    ID = 'APal'
+    def process_data(self):
+        self.length = int.from_bytes(self.full_data[4:8], byteorder='big')
+        palette_count = self.length // 4
+        self.pictures = []
+        for p in range(palette_count):
+            picture_number = int.from_bytes(self.full_data[8+p*4:12+p*4], byteorder='big')
+            self.pictures.append(picture_number)
+            
+    def create_data(self):
+        pass
+
+class looping_chunk(iff.chunk):
+    ID = 'Loop'
+    sound_looping_data = {}
+
+    def process_data(self):
+        self.length = int.from_bytes(self.full_data[4:8], byteorder='big')
+        loop_data_count = self.length // 8
+        for a in range(loop_data_count):
+            sound_number = int.from_bytes(self.full_data[8+a*8:12+a*8], byteorder='big')
+            repeats = int.from_bytes(self.full_data[8+a*8:12+a*8], byteorder='big')
+            self.sound_looping_data[sound_number] = repeats
+
+    def create_data(self):
+        pass
+    
+#
+
+class story_name_chunk(iff.chunk):
+    ID = 'SNam'
+    def process_data(self):
+        self.length = int.from_bytes(self.full_data[4:8], byteorder='big')
+        self.story_name = self.full_data[8:8+self.length].decode('utf-16')
+
+    def create_data(self):
+        self.full_data = self.ID.encode() + self.length.to_bytes(4, 'big') + self.story_name.encode()
+
+# adrift
+
+class gif_chunk(iff.chunk):
+    ID = 'GIF '
+
+class wav_chunk(iff.chunk):
+    ID = 'WAV '
+
+class midi_chunk(iff.chunk):
+    ID = 'MIDI'
+
+class mp3_chunk(iff.chunk):
+    ID = 'MP3 '
+
+###
+
+chunk_types = { 'RIdx':resource_index_chunk,
+                'PNG ':png_chunk,
+                'JPEG':jpeg_chunk,
+                'Rect':rect_chunk,
+                'OGGV':oggv_chunk,
+                'MOD ':mod_chunk,
+                'SONG':song_chunk,
+                'TEXT':text_data_chunk,
+                'BINA':binary_data_chunk,
+                'ZCOD':zcode_chunk,
+                'GLUL':glulx_chunk,
+                'TAD2':tads2_chunk,
+                'TAD3':tads3_chunk,
+                'HUGO':hugo_chunk,
+                'ALAN':alan_chunk,
+                'ADRI':adri_chunk,
+                'LEVE':level9_chunk,
+                'AGT ':agt_chunk,
+                'MAGS':magnetic_scrolls_chunk,
+                'ADVS':advsys_chunk,
+                'EXEC':native_executable_chunk,
+                'IFhd':game_identifier_chunk,
+                'Plte':color_palette_chunk,
+                'Fspc':frontispiece_chunk,
+                'RDes':resource_description_chunk,
+                'IFmd':metadata_chunk,
+                'RelN':release_number_chunk,
+                'Reso':resolution_chunk,
+                'APal':adaptive_palette_chunk,
+                'Loop':looping_chunk,
+                'SNam':story_name_chunk,
+                'GIF ':gif_chunk,
+                'WAV ':wav_chunk,
+                'MIDI':midi_chunk,
+                'MP3 ':mp3_chunk
+              }
+
+    
+iff.chunk_types.update(chunk_types)
 
 
 class rect:
