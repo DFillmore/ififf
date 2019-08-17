@@ -27,29 +27,27 @@ class chunk:
         """given a bytes object containing an IFF chunk, return a chunk object of that data"""
         self.full_data = raw_data
         self.process_data()
-        self.update_length()
         return self
 
     def to_bytes(self):
         """return a bytes object containing the chunk data"""
         # update data
         self.create_data()
-        self.update_length()
         return self.full_data
 
     def process_data(self):
         """updates the various chunk attributes using the full_data"""
         self.ID = self.full_data[0:4].decode('ascii')
         self.length = int.from_bytes(self.full_data[4:8], byteorder='big')
-        self.data = self.full_data[8:]
+        self.data = self.full_data[8:self.length+8]
 
     def create_data(self):
         """updates the full_data using the chunk attributes"""
-        self.full_data = self.ID.encode() + self.length.to_bytes(4, 'big') + self.data
+        length = len(self.data) + 8
+        self.full_data = self.ID.encode() + length.to_bytes(4, 'big') + self.data
+        if len(self.full_data) % 2 == 1:
+            self.full_data += b'\x00' 
 
-    def update_length(self):
-        self.length = len(self.full_data) - 8
-        self.full_data = self.full_data[0:4] + self.length.to_bytes(4, 'big') + self.full_data[8:]
         
 class form_chunk(chunk):
     ID = 'FORM'
@@ -61,10 +59,10 @@ class form_chunk(chunk):
         #should check to see if ID is FORM and complain otherwise
         self.length = int.from_bytes(self.full_data[4:8], byteorder='big')
         self.subID = self.full_data[8:12].decode('ascii')
-        self.data = self.full_data[12:]
+        self.data = self.full_data[12:self.length+12]
         sub_chunks_data = split_chunks(self.data)
         self.sub_chunks = []
-        # should use self.data to find all sub chunks, then process them
+
         for cd in sub_chunks_data:
             ID = cd[0:4].decode('ascii')
             if ID in chunk_types:
@@ -84,18 +82,20 @@ class form_chunk(chunk):
                 
         
 class text_chunk(chunk): # any chunk where the data is pure text
+    encoding = 'latin-1'
+    text = ''
     def process_data(self):
         """updates the various chunk attributes using the full_data""" 
         self.length = int.from_bytes(self.full_data[4:8], byteorder='big')
-        self.text = self.full_data[8:].decode('latin-1')
+        self.text = self.full_data[8:self.length+8].decode(self.encoding)
 
     def create_data(self):
         """updates the full_data using the chunk attributes"""
-        self.full_data = self.ID.encode() + self.length.to_bytes(4, 'big') + self.text.encode()
+        length = len(self.text.encode()) + 8
+        self.full_data = self.ID.encode() + self.length.to_bytes(length, 'big') + self.text.encode()
     
 class auth_chunk(text_chunk):
     ID = 'AUTH'
-
 
 class anno_chunk(text_chunk):
     ID = 'ANNO'
