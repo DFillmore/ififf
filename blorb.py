@@ -366,19 +366,43 @@ class NoExecChunk(Exception):
     def __str__(self):
         return repr(self.value)
 
-class Blorb:
-    def __init__(self, filename, game=None):
-        try:
-            file = open(filename, 'rb')
-            self.data = file.read()
-            file.close()
-        except:
-            raise InvalidBlorbFile("Error opening the Blorb file.")
-        x = self.findChunk(b'RIdx')
-        x += 8
+class game:
+    number = None
+    type = None
+    title = None
+    author = None
+    description = None
+    data = b''
+
+class pict:
+    number = None
+    type = None
+    data = b''
+    def __init__(self, pic_chunk, number):
+        self.type = pic_chunk.ID.decode('ascii').strip()
+        self.data = pic_chunk.data
+        self.number = number
+
+class sound:
+    number = None
+    type = None
+    data = b''
+    def __init__(self, snd_chunk, number):
+        self.type = snd_chunk.ID.decode('ascii').strip()
+        self.data = snd_chunk.data
+        self.number = number
+
+class blorb:
+    game = {}
+    pict = {}
+    sound = {}
+    def __init__(self, blorb_chunk):
+        for c in blorb_chunk.sub_chunks:
+            if c.ID == 'RIDx':
+                for a in c.resources:
+                    for b in a:
+                        iff.get_chunk(blorb_chunk, c.resources[a][b])
         
-        rescount = int.from_bytes(self.data[x:x+4], byteorder='big')
-        x += 4
         self.resindex = {}
         self.resindex[b'Pict'] = {}
         self.resindex[b'Snd '] = {}
@@ -393,13 +417,6 @@ class Blorb:
                 self.resindex[usage] = {}
                 self.resindex[usage][resnum] = pos
             
-        #if game:
-        #    valid = self.checkgame(game)
-        #    if valid == False:
-        #        raise InvalidIFhdChunk("The Blorb file does not match the game.")
-        #else:
-        #    if self.getExec(0) == False:
-        #        raise NoExecChunk("The Blorb file does not contain a game file.")
        
         x = self.findChunk(b'RelN')
         if x == 0:
@@ -428,14 +445,6 @@ class Blorb:
         if gameRelease == idRelease and gameSerial == idSerial and gameChecksum == idChecksum:
             return True
         return False
-
-    def chunkSize(self, place):
-        size = int.from_bytes(self.data[place+4:place+8], byteorder='big')
-        return size
-       
-    def chunkType(self, place):
-        type = self.data[place:place+4]
-        return type
     
     def getExec(self, execnum):
         try:
@@ -687,3 +696,4 @@ class Blorb:
         #picnum = int.from_bytes(rfile.read(4), byteorder='big')
         #pic = getpic(picnum, titlepic=True)
         return None
+
