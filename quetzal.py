@@ -6,102 +6,50 @@ import os
 import iff
 from ifchunks import ifhd_chunk
             
-class umem_chunk(iff.chunk):
-    ID = 'UMem'
+class z_memory:
+    def __init__(self, current_data, original_data):
+        self.full_data = bytes(current_data)
+        self.original_data = bytes(original_data)
 
-    def write(self):
-        self.data = storydata.memory[:]
+    def compress(self):
+        changed_data = bytearray(a^b for a,b in zip(self.original_data, self.full_data))
+        changed_data = changed_data.rstrip(b'\x00')
 
-    def read(self):
-        global storydata
-        storydata.memory = self.data[:]
-        return self.data[:]
-
-    def process_data(self):
-        """updates the various chunk attributes using the raw_data"""
-        self.ID = self.raw_data[0:4].decode('ascii')
-        self.length = int.from_bytes(self.raw_data[4:8], byteorder='big')
-        self.dynamic_memory = self.raw_data[8:self.length+8]
-
-    def create_data(self):
-        """updates the raw_data using the chunk attributes"""
-        length = len(self.data)
-        self.raw_data = self.ID.encode() + length.to_bytes(4, 'big') + self.dynamic_memory
-
-
-
-class cmem_chunk(iff.chunk):
-    ID = 'CMem'
-
-    def process_data(self):
-        """updates the various chunk attributes using the raw_data"""
-        self.ID = self.raw_data[0:4].decode('ascii')
-        self.length = int.from_bytes(self.raw_data[4:8], byteorder='big')
-        self.dynamic_memory = self.raw_data[8:self.length+8]
-
-    def create_data(self):
-        """updates the raw_data using the chunk attributes"""
-        length = len(self.data)
-        self.raw_data = self.ID.encode() + length.to_bytes(4, 'big') + self.dynamic_memory
-
-    def write(self):
-        commem = []
-        mem = [storydata.memory[a] ^ storydata.omemory[a] for a in range(len(storydata.memory))]
-
-        while mem[-1] == 0:
-            mem.pop()
+        compressed_data = bytearray()
         zerorun = 0
-        for a in range(len(mem)):
-            if zerorun == 0:
-                commem.append(mem[a])
-            else:
-                if mem[a] == 0:
-                    zerorun += 1
-                else:
-                    commem.append(zerorun - 1)
-                    commem.append(mem[a])
-                    zerorun = 0
+        for a in changed_data:
+            if a == b'\x00':
+                zerorun += 1
                 if zerorun == 256:
-                    commem.append(zerorun - 2)
-                    commem.append(mem[a])
+                    zerorun -= 1
+                    compressed_data.append('\x00')
+                    compressed_data.append(zerorun.to_bytes(1, 'big'))
                     zerorun = 0
-            if (mem[a] == 0) and (zerorun == 0):
-                zerorun = 1
-        self.data = commem[:]
-
-    def read(self):
-        global storydata
-        commem = self.data[:]
-        obmem = []
-        zerorun = False
-        for a in range(len(commem)): # loop over commpressed memory
-            if zerorun == True:
-                runlength = commem[a]
-                for b in range(runlength):
-                    obmem.append(0)
-                zerorun = False
-            elif commem[a] == 0:
-                obmem.append(commem[a])
-                zerorun = True
             else:
-                obmem.append(commem[a])
-        while len(obmem) < len(storydata.omemory):
-            obmem.append(0)
-        mem = []
-        
-        mem = [obmem[a] ^ storydata.omemory[a] for a in range(len(obmem))]
-        storydata.memory = mem[:]
-        return mem
+                if zerorun > 0:
+                    zerorun -= 1
+                    compressed_data.append(b'\x00')
+                    compressed_data.append(zerorun.to_bytes(1, 'big'))
+                    zerorun = 0
+                compressed_data.append(a)
 
-class frame:
-    retPC = 0
-    flags = 0
-    varnum = 0
-    numargs = 0
-    evalstacksize = 0
-    lvars = []
-    evalstack = []
-    interrupt = False
+        self.compressed_data = bytes(compressed_data)
+
+    def decompress(self):
+        uncompressed_data = bytearray()
+        zerorun = False
+        for a in self.compressed_data:
+            if zerorun:
+                runlength = int.from_bytes(a, 'big')
+                uncompressed_data.extend(bytes(runlength))
+            else:
+                if a == b'\x00':
+                    zerorun = True
+                uncompressed_data.append(a)
+        uncompressed_data.extend(bytes(len(self.original_data) - len(uncompressed_data)))
+        self.full_data = bytes(a^b for a,b in zip(uncompressed_data, self.original_data))
+            
+                    
             
 class stkschunk(iff.chunk):
     ID = 'Stks'
@@ -342,7 +290,7 @@ class frame:
         
 class stks_chunk(iff.chunk):
     ID = 'Stks'
-    self.callstack = []
+    callstack = []
 
     def process_data(self):
         self.ID = self.raw_data[0:4].decode('ascii')
@@ -385,61 +333,39 @@ class stks_chunk(iff.chunk):
 
             self.callstack.append(frame(retPC, discard_result, varnum, numargs, lvars, evalstack))
 
-        
-
-    def write(self):
-        global zstack
+    def create_data(self):
         data = bytearray()
         data.extend(self.ID.encode())
         data.extend(self.length.to_bytes(4, 'big'))
         
-        for a in self.callstack:
-            data.extend(a.retPC.to_bytes(3, 'big'))
-            flags = len(a.lvars)
-            if a.discard_result:
+        for f in self.callstack:
+            data.extend(f.retPC.to_bytes(3, 'big'))
+            flags = len(f.lvars)
+            if f.discard_result:
                 flags += 16
                     
             data.extend(flags.to_bytes(1, 'big'))
-            data.extend(a.varnum.to_bytes(1, 'big'))
+            
+            data.extend(f.varnum.to_bytes(1, 'big'))
+            
             args = 1
-            for b in range(storydata.callstack[a].numargs):
+            for b in range(f.numargs):
                 args *= 2
             args -= 1
-            self.data.append(args)
-            self.data.append((storydata.callstack[a].evalstacksize >> 8) & 0xff)
-            self.data.append(storydata.callstack[a].evalstacksize & 0xff)
+            data.extend(args.to_bytes(1, 'big'))
 
-            for x in range(len(storydata.callstack[a].lvars)):
-                self.data.append((storydata.callstack[a].lvars[x] >> 8) & 255)
-                self.data.append(storydata.callstack[a].lvars[x] & 255)
-            
-            for x in range(storydata.callstack[a].evalstacksize):
-                self.data.append((storydata.callstack[a].evalstack[x] >> 8) & 255)
-                self.data.append(storydata.callstack[a].evalstack[x] & 255)
-        self.data.append((storydata.currentframe.retPC >> 16) & 0xff)
-        self.data.append((storydata.currentframe.retPC >> 8) & 0xff)
-        self.data.append(storydata.currentframe.retPC & 0xff)
-        self.data.append(storydata.currentframe.flags)
-        self.data.append(storydata.currentframe.varnum)
-        args = 1
-        for a in range(storydata.currentframe.numargs):
-            args *= 2
-        args -= 1
-        self.data.append(args)
-        self.data.append((len(storydata.currentframe.evalstack) >> 8) & 0xff)
-        self.data.append(len(storydata.currentframe.evalstack) & 0xff)
-        for x in range(len(storydata.currentframe.lvars)):
-            self.data.append((storydata.currentframe.lvars[x] >> 8) & 255)
-            self.data.append(storydata.currentframe.lvars[x] & 255)
-            
-        for x in range(storydata.currentframe.evalstacksize):
-            self.data.append((storydata.currentframe.evalstack[x] >> 8) & 255)
-            self.data.append(storydata.currentframe.evalstack[x] & 255)
+            data.extend(len(f.evalstack).to_bytes(2, 'big'))
 
+            for v in f.lvars:
+                data.extend(v.to_bytes(2, 'big'))
 
+            for e in f.evalstack:
+                data.extend(e.to_bytes(2, 'big'))
+
+        s = len(data) - 8
+        data[4:8] = s.to_bytes(4, 'big')
+        self.raw_data = bytes(data)
         
-        
-
 
 class intd_chunk(iff.chunk):
     ID = 'IntD'
