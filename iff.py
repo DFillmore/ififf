@@ -3,6 +3,8 @@
 
 def get_chunk(data, position=0):
     chunk_length = int.from_bytes(data[position+4:position+8], byteorder='big')
+    if chunk_length % 2 == 1:
+        chunk_length += 1
     c = data[position:position+8+chunk_length]
     return c
 
@@ -12,11 +14,10 @@ def split_chunks(data):
     chunks = []
     while pos < len(data):
         c = get_chunk(data, pos)
-        pos += chunk_length + 8
-        if len(c) % 2 == 1:
-            pos += 1
+        pos += len(c)
         chunks.append(c)
     return chunks
+
 
 class chunk:
     ID = "    "
