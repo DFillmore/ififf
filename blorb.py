@@ -307,8 +307,20 @@ chunk_types = { 'RIdx':resource_index_chunk,
                 'MP3 ':mp3_chunk
               }
 
+form_types = { 'IFRS': blorb_chunk,
+               'AIFF': aiff_chunk
+             }
+
+game_ids = ['ZCOD','GLUL','TAD2','TAD3','HUGO','ALAN','ADRI','LEVE','AGT ','MAGS','ADVS','EXEC']
+
+picture_ids = ['PNG ','JPEG','Rect','GIF ']
+
+sound_ids = ['FORM','OGGV','MOD ','SONG','WAV ','MIDI','MP3 ']
+
+data_ids = ['TEXT','BINA']
     
 iff.chunk_types.update(chunk_types)
+iff.form_types.update(form_types)
 
 
 class rect:
