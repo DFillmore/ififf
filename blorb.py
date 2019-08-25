@@ -11,6 +11,12 @@ from ifchunks import ifhd_chunk
 class blorb_chunk(iff.form_chunk):
     subID = 'IFRS'
 
+class resource:
+    def __init__(self, usage, number, location):
+        self.usage = usage
+        self.number = number
+        self.location = location
+    
 class resource_index_chunk(iff.chunk):
     ID = 'RIdx'
     def process_data(self):
@@ -21,11 +27,12 @@ class resource_index_chunk(iff.chunk):
             usage = self.raw_data[12+r*12:16+r*12].decode('ascii')
             resource_number = int.from_bytes(self.raw_data[16+r*12:20+r*12], byteorder='big')
             location = int.from_bytes(self.raw_data[20+r*12:24+r*12], byteorder='big')
+            res = resource(usage, resource_number, location)
             try:
                 self.resources[usage]
             except:
-                self.resources[usage] = {}
-            self.resources[usage][resource_number] = location
+                self.resources[usage] = []
+            self.resources[usage].append(res)
 
     def create_data(self):
         pass
