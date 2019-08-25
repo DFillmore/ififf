@@ -402,20 +402,53 @@ class sound:
         self.number = number
 
 class blorb:
-    game = {}
-    pict = {}
-    sound = {}
+    games = {}
+    picts = {}
+    sounds = {}
     def __init__(self, blorb_chunk):
+        games = []
+        picts = []
+        sounds = []
+        datas = []
         for c in blorb_chunk.sub_chunks:
             if c.ID == 'RIDx':
-                for a in c.resources:
-                    for b in a:
-                        iff.get_chunk(blorb_chunk, c.resources[a][b])
+                self.resource_index = c.resources[:]
+
+            if c.ID in game_ids:
+                games.append(c)
+            if c.ID in picture_ids:
+                picts.append(c)
+            if c.ID in sound_ids:
+                sounds.append(c)
+            if c.ID in data_ids:
+                datas.append(c)
+            
+            if c.ID == 'IFhd':
+                pass
+            if c.ID == 'Plte':
+                pass
+            if c.ID == 'Fspc':
+                pass
+            if c.ID == 'RDes':
+                pass
+            if c.ID == 'IFmd':
+                pass
+            if c.ID == 'RelN':
+                pass
+            if c.ID == 'Reso':
+                pass
+            if c.ID == 'APal':
+                pass
+            if c.ID == 'Loop':
+                pass
+            if c.ID == 'SNam':
+                pass
+
         
-        self.resindex = {}
-        self.resindex[b'Pict'] = {}
-        self.resindex[b'Snd '] = {}
-        self.resindex[b'Exec'] = {}
+        
+
+
+        
         for a in range(rescount):
             usage = self.data[x+(a*12):x+(a*12)+4]
             resnum = int.from_bytes(self.data[x+(a*12)+4:x+(a*12)+8], byteorder='big')
