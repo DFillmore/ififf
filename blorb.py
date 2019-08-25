@@ -1,10 +1,12 @@
 # Copyright (C) 2001 - 2019 David Fillmore
 
-import iff
 import tempfile
 import os
 import sys
+
+import iff
 import babel
+from ifchunks import ifhd_chunk
 
 class blorb_chunk(iff.form_chunk):
     subID = 'IFRS'
@@ -105,18 +107,6 @@ class advsys_chunk(iff.chunk):
     
 class native_executable_chunk(iff.chunk):
     ID = 'EXEC'
-
-class game_identifier_chunk(iff.chunk):
-    ID = 'IFhd'
-    def process_data(self):
-        self.length = int.from_bytes(self.full_data[4:8], byteorder='big')
-        self.release_number = int.from_bytes(self.full_data[8:12], byteorder='big')
-        self.serial_number = self.full_data[12:18].decode('ascii')
-        self.checksum = int.from_bytes(self.full_data[18:22], byteorder='big')
-        self.PC = int.from_bytes(self.full_data[22:25], byteorder='big')
-            
-    def create_data(self):
-        pass
 
 class color_palette_chunk(iff.chunk):
     ID = 'Plte'
