@@ -4,9 +4,9 @@ import tempfile
 import os
 import sys
 
-import iff
-import babel
-from ifchunks import ifhd_chunk
+from . import iff
+from . import babel
+from .ifchunks import ifhd_chunk
 
 class blorb_chunk(iff.form_chunk):
     subID = 'IFRS'

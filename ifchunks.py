@@ -2,7 +2,7 @@
 
 # contains IFF chunks common to multiple IF-related file types
 
-import iff
+from . import iff
 
 
 class ifhd_chunk(iff.chunk): # common to blorb and quetzal files (only understands z-code ifhd chunks)

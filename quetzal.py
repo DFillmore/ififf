@@ -3,8 +3,8 @@
 import copy
 import os
 
-import iff
-from ifchunks import ifhd_chunk
+from . import iff
+from .ifchunks import ifhd_chunk
             
 class z_memory:
     def __init__(self, current_data, original_data):
