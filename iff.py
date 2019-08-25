@@ -74,9 +74,16 @@ class form_chunk(chunk):
         for cd in sub_chunks_data:
             ID = cd[0:4].decode('ascii')
             if ID in chunk_types:
-                co = chunk_types[ID]().from_bytes(cd)
+                if ID == 'FORM':
+                    subID = cd[8:12].decode('ascii')
+                    if subID in form_types:
+                        co = form_types[subID](cd)
+                    else:
+                        co = chunk_types[ID](cd)
+                else:
+                    co = chunk_types[ID](cd)
             else:
-                co = chunk().from_bytes(cd)
+                co = chunk(cd)
             self.sub_chunks.append(co)
 
     def create_data(self):
@@ -118,3 +125,5 @@ chunk_types = {'FORM':form_chunk,
                'ANNO':anno_chunk,
                '(c) ':copy_chunk
               }
+
+form_types = {}
