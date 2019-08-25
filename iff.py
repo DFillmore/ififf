@@ -1,7 +1,7 @@
 # Copyright (C) 2001 - 2019 David Fillmore
 
 
-def get_chunk(data, position):
+def get_chunk(data, position=0):
     chunk_length = int.from_bytes(data[position+4:position+8], byteorder='big')
     c = data[position:position+8+chunk_length]
     return c
