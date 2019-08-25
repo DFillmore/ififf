@@ -413,10 +413,15 @@ class intd_chunk(iff.chunk):
         
         
                     
-        
+    
 
 class quetzal_chunk(iff.form_chunk):
     subID = 'IFZS'
+
+    ifhd = None
+    cmem = None
+    umem = None
+    stks = None
     
 
     
@@ -427,28 +432,41 @@ class qdata:
     serial = None
     checksum = None
     PC = None 
-    memory = None
-    omemory = None
+    current_memory = None
+    orignial_memory = None
     callstack = None
-    currentframe = None
+    current_frame = None
 
 def save(sfile, qd):
     global storydata
-    storydata = qd
-    data = []
-    cchunk = formchunk() # cchunk is a form chunk
-    cchunk.dowrite() # fill cchunk.data with data
-    id = cchunk.writeID() # find cchunk's id
-    for b in range(len(id)):
-        data.append(ord(id[b])) # write ID to data
-    clen = cchunk.writelen() # find cchunk's length
-    for b in range(len(clen)):
-        data.append(clen[b]) # write length to data
-    for b in range(len(cchunk.data)):
-        data.append(cchunk.data[b]) # write cchunk's data to data
-    sfile.write(bytes(data)) # write data to file
-    sfile.close() # close file
-    condition = True
+    # create a quetzal chunk
+    # create chunks for each bit of data
+    # add the sub-chunks to the quetzal chunk
+    # process the quetzal chunk
+    # write the quetzal chunk's data to file
+    q = quetzal_chunk()
+
+    # ifhd    
+    g = ifhd_chunk()
+    g.release_number = qd.release
+    g.serial_number = qd.serial[:]
+    g.checksum = qd.checksum
+    g.PC = qd.PC
+    q.ifhd = g
+
+    
+    
+    # cmem
+    m = cmem_chunk()
+    q.memory = z_memory(qd.current_data, qd.original_data)
+    q.compress()
+    m.dynamic_memory = q.full_data[:]
+    q.cmem = m
+    
+    # stks
+    s = stks_chunk()
+    
+
     return condition
 
 def restore(savedata, qd):
