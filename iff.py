@@ -23,19 +23,25 @@ class chunk:
     length = 0
     data = b''
     raw_data = b'    \x00\x00\x00\x00'
-    def from_bytes(self, raw_data):
-        """given a bytes object containing an IFF chunk, return a chunk object of that data"""
-        self.full_data = raw_data
-        self.process_data()
-        return self
 
-    def to_bytes(self):
+    def __str__(self):
+        return self.ID + ' chunk'
+
+    def __init__(self, chunk_data=None):
+        if chunk_data:
+            self.raw_data = get_chunk(chunk_data)
+        self.process_data()
+
+    def get_chunk_data(self):
         """return a bytes object containing the chunk data"""
-        # update data
         self.create_data()
         self.pad_data()
         return self.raw_data
 
+    def pad_data(self):
+        if len(self.raw_data) % 2 == 1:
+            self.raw_data += b'\x00' 
+        
     def process_data(self):
         """updates the various chunk attributes using the raw_data"""
         self.ID = self.raw_data[0:4].decode('ascii')
@@ -52,6 +58,9 @@ class form_chunk(chunk):
     ID = 'FORM'
     sub_chunks = []
     subID = '    '
+
+    def __str__(self):
+        return self.ID + ' ' + self.subID + ' chunk'
 
     def process_data(self):
         """updates the various chunk attributes using the raw_data"""
