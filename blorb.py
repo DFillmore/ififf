@@ -6,7 +6,7 @@ import sys
 
 from . import iff
 from . import babel
-from .ifchunks import ifhd_chunk
+from .ifchunks import game_identifier_chunk
 
 class blorb_chunk(iff.form_chunk):
     subID = 'IFRS'

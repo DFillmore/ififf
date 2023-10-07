@@ -4,7 +4,7 @@ import copy
 import os
 
 from . import iff
-from .ifchunks import ifhd_chunk
+from .ifchunks import game_identifier_chunk
             
 class z_memory:
     def __init__(self, current_data, original_data):
