@@ -17,7 +17,11 @@ def split_chunks(data):
         pos += len(c)
         chunks.append(c)
     return chunks
-
+    
+def identify_chunk(c):
+    if c.ID in chunk_types:
+        return chunk_types[c.ID](c.raw_data)
+    return c
 
 class chunk:
     ID = "    "
@@ -53,7 +57,6 @@ class chunk:
         """updates the raw_data using the chunk attributes"""
         length = len(self.data) + 8
         self.raw_data = self.ID.encode() + length.to_bytes(4, 'big') + self.data
-
         
 class form_chunk(chunk):
     ID = 'FORM'
@@ -73,26 +76,16 @@ class form_chunk(chunk):
         self.sub_chunks = []
 
         for cd in sub_chunks_data:
-            ID = cd[0:4].decode('ascii')
-            if ID in chunk_types:
-                if ID == 'FORM':
-                    subID = cd[8:12].decode('ascii')
-                    if subID in form_types:
-                        co = form_types[subID](cd)
-                    else:
-                        co = chunk_types[ID](cd)
-                else:
-                    co = chunk_types[ID](cd)
-            else:
-                co = chunk(cd)
+            co = chunk(cd)
+            co = identify_chunk(co)
             self.sub_chunks.append(co)
 
     def create_data(self):
         chunks_data = []
         
-        temp_data = self.subID.decode()
+        temp_data = bytes(self.subID, 'ascii')
         
-        for co in self.sub_chunks():
+        for co in self.sub_chunks:
             cd = co.get_chunk_data()
             temp_data += cd
         length = len(temp_data)
