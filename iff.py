@@ -91,6 +91,14 @@ class form_chunk(chunk):
         length = len(temp_data)
         self.raw_data = self.ID.encode() + length.to_bytes(4, 'big') + temp_data
         
+    def find_chunk(self, ID, ordinal=1):
+        for a in self.sub_chunks:
+            if a.ID == ID:
+                if ordinal <= 1:
+                    return a
+                ordinal -= 1
+        return None
+        
         
 class text_chunk(chunk): # any chunk where the data is pure text
     encoding = 'latin-1'
