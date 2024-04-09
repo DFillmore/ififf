@@ -115,40 +115,35 @@ class stkschunk(iff.chunk):
         callstack = []
         place = 0
         while place < len(self.data):
-            callstack.append(frame())
-            callstack[-1].lvars = []
-            callstack[-1].evalstack = []
-            callstack[-1].retPC = (self.data[place] << 16) + (self.data[place+1] << 8) + self.data[place+2]
-            callstack[-1].flags = self.data[place+3]
-            numvars = self.data[place+3] & 15
-            callstack[-1].varnum = self.data[place+4]
+            lvars = []
+            evalstack = []
+            retPC = (self.data[place] << 16) + (self.data[place + 1] << 8) + self.data[place + 2]
+            flags = self.data[place + 3]
+            numvars = self.data[place + 3] & 15
+            varnum = self.data[place + 4]
             done = 1
             x = 0
-            args = self.data[place+5]
+            numargs = self.data[place + 5]
             while done != 0:
                 x += 1
-                done = args & 1
-                args = args >> 1
-            args -= 1
-            callstack[-1].numargs = args
- 
-            callstack[-1].evalstacksize = (self.data[place+6] << 8) + self.data[place+7]
-            
+                done = numargs & 1
+                numargs = numargs >> 1
+            numargs -= 1
+
+            evalstacksize = (self.data[place + 6] << 8) + self.data[place + 7]
+
             place += 8
-            for x in range(numvars): 
-                
-                callstack[-1].lvars.append((self.data[place] << 8) + self.data[place+1])
+            for x in range(numvars):
+                lvars.append((self.data[place] << 8) + self.data[place + 1])
                 place += 2
-            
-            for x in range(callstack[-1].evalstacksize):
-                
-                callstack[-1].evalstack.append((self.data[place] << 8) + self.data[place+1])
+
+            for x in range(evalstacksize):
+                evalstack.append((self.data[place] << 8) + self.data[place + 1])
                 place += 2
+            callstack.append(frame(retPC, False, varnum, numargs, lvars, evalstack))
         storydata.callstack = copy.deepcopy(callstack)
         storydata.currentframe = storydata.callstack.pop()
         return callstack
-        
-        
 
 
 class ifhdchunk(iff.chunk):
