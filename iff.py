@@ -14,11 +14,12 @@
 
 
 def get_chunk(data, position=0):
-    chunk_length = int.from_bytes(data[position+4:position+8], byteorder='big')
+    chunk_length = int.from_bytes(data[position + 4:position + 8], byteorder='big')
     if chunk_length % 2 == 1:
         chunk_length += 1
-    c = data[position:position+8+chunk_length]
+    c = data[position:position + 8 + chunk_length]
     return c
+
 
 def split_chunks(data):
     """find all the top-level chunks in a bytes object, and return a list with each chunk as an item of bytes"""
@@ -29,11 +30,13 @@ def split_chunks(data):
         pos += len(c)
         chunks.append(c)
     return chunks
-    
+
+
 def identify_chunk(c):
     if c.ID in chunk_types:
         return chunk_types[c.ID](c.raw_data)
     return c
+
 
 class chunk:
     ID = "    "
@@ -57,19 +60,20 @@ class chunk:
 
     def pad_data(self):
         if len(self.raw_data) % 2 == 1:
-            self.raw_data += b'\x00' 
-        
+            self.raw_data += b'\x00'
+
     def process_data(self):
         """updates the various chunk attributes using the raw_data"""
         self.ID = self.raw_data[0:4].decode('ascii')
         self.length = int.from_bytes(self.raw_data[4:8], byteorder='big')
-        self.data = self.raw_data[8:self.length+8]
+        self.data = self.raw_data[8:self.length + 8]
 
     def create_data(self):
         """updates the raw_data using the chunk attributes"""
         length = len(self.data) + 8
         self.raw_data = self.ID.encode() + length.to_bytes(4, 'big') + self.data
-        
+
+
 class form_chunk(chunk):
     ID = 'FORM'
     sub_chunks = []
@@ -83,7 +87,7 @@ class form_chunk(chunk):
         self.length = int.from_bytes(self.raw_data[4:8], byteorder='big')
         subID = self.raw_data[8:12].decode('ascii')
         self.subID = subID
-        self.data = self.raw_data[12:self.length+12]
+        self.data = self.raw_data[12:self.length + 12]
         sub_chunks_data = split_chunks(self.data)
         self.sub_chunks = []
 
@@ -93,16 +97,14 @@ class form_chunk(chunk):
             self.sub_chunks.append(co)
 
     def create_data(self):
-        chunks_data = []
-        
         temp_data = bytes(self.subID, 'ascii')
-        
+
         for co in self.sub_chunks:
             cd = co.get_chunk_data()
             temp_data += cd
         length = len(temp_data)
         self.raw_data = self.ID.encode() + length.to_bytes(4, 'big') + temp_data
-        
+
     def find_chunk(self, ID, ordinal=1):
         for a in self.sub_chunks:
             if a.ID == ID:
@@ -110,34 +112,39 @@ class form_chunk(chunk):
                     return a
                 ordinal -= 1
         return None
-        
-        
-class text_chunk(chunk): # any chunk where the data is pure text
+
+
+class text_chunk(chunk):  # any chunk where the data is pure text
     encoding = 'latin-1'
     text = ''
+
     def process_data(self):
-        """updates the various chunk attributes using the raw_data""" 
+        """updates the various chunk attributes using the raw_data"""
         self.length = int.from_bytes(self.raw_data[4:8], byteorder='big')
-        self.text = self.raw_data[8:self.length+8].decode(self.encoding)
+        self.text = self.raw_data[8:self.length + 8].decode(self.encoding)
 
     def create_data(self):
         """updates the raw_data using the chunk attributes"""
         length = len(self.text.encode()) + 8
         self.raw_data = self.ID.encode() + self.length.to_bytes(length, 'big') + self.text.encode()
-    
+
+
 class auth_chunk(text_chunk):
     ID = 'AUTH'
+
 
 class anno_chunk(text_chunk):
     ID = 'ANNO'
 
+
 class copy_chunk(text_chunk):
     ID = '(c) '
 
-chunk_types = {'FORM':form_chunk,
-               'AUTH':auth_chunk,
-               'ANNO':anno_chunk,
-               '(c) ':copy_chunk
-              }
+
+chunk_types = {'FORM': form_chunk,
+               'AUTH': auth_chunk,
+               'ANNO': anno_chunk,
+               '(c) ': copy_chunk
+               }
 
 form_types = {}
