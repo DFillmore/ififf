@@ -13,11 +13,10 @@
 # GNU General Public License for more details.
 
 import copy
-import os
 
 from . import iff
-from .ifchunks import game_identifier_chunk
-            
+
+
 class z_memory:
     def __init__(self, current_data, original_data):
         self.full_data = bytes(current_data)
