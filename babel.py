@@ -57,14 +57,6 @@ def getDescription(iFiction):
         return ''.join([ ('\n\n' if a.nodeType == 1 and a.localName == 'br' else ' '.join(a.wholeText.split())) for a in desc.childNodes
                        ]
                       )
-        
-        for a in desc.childNodes:
-            if a.nodeType == 3:
-                fulldesc.append(' '.join(a.wholeText.split()))
-            elif a.nodeType == 1 and a.localName == 'br':
-                fulldesc.append('\n\n')
-
-        return ''.join(fulldesc)
     except:
         return None
 
