@@ -491,7 +491,7 @@ class blorb:
         sounds = []
         datas = []
         for c in blorb_chunk.sub_chunks:
-            if c.ID == 'RIDx':
+            if c.ID == resource_index_chunk.ID:
                 self.resource_index = c.resources[:]
 
             if c.ID in game_ids:
@@ -503,25 +503,25 @@ class blorb:
             if c.ID in data_ids:
                 datas.append(c)
 
-            if c.ID == 'IFhd':
+            if c.ID == game_identifier_chunk.ID:
                 pass
-            if c.ID == 'Plte':
+            if c.ID == color_palette_chunk.ID:
                 pass
-            if c.ID == 'Fspc':
+            if c.ID == frontispiece_chunk.ID:
                 pass
-            if c.ID == 'RDes':
+            if c.ID == resource_description_chunk.ID:
                 pass
-            if c.ID == 'IFmd':
+            if c.ID == metadata_chunk.ID:
                 pass
-            if c.ID == 'RelN':
+            if c.ID == release_number_chunk:
                 pass
-            if c.ID == 'Reso':
+            if c.ID == resolution_chunk:
                 pass
-            if c.ID == 'APal':
+            if c.ID == adaptive_palette_chunk:
                 pass
-            if c.ID == 'Loop':
+            if c.ID == looping_chunk:
                 pass
-            if c.ID == 'SNam':
+            if c.ID == story_name_chunk:
                 pass
 
         for a in range(rescount):
