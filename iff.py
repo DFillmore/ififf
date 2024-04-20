@@ -44,7 +44,7 @@ class chunk:
     data = b''
     raw_data = b'    \x00\x00\x00\x00'
 
-    def __str__(self):
+    def __repr__(self):
         return self.ID + ' chunk'
 
     def __init__(self, chunk_data=None):
@@ -89,7 +89,7 @@ class form_chunk(chunk):
         self.subID = subID
         self.data = self.raw_data[12:self.length + 12]
         sub_chunks_data = split_chunks(self.data)
-        self.sub_chunks = []
+        self.sub_chunks: list[chunk] = []
 
         for cd in sub_chunks_data:
             co = chunk(cd)
