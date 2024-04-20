@@ -17,7 +17,7 @@
 from . import iff
 
 
-class game_identifier_chunk(iff.chunk): # common to blorb and quetzal files (only understands z-code ifhd chunks)
+class game_identifier_chunk(iff.chunk):  # common to blorb and quetzal files (only understands z-code IFhd chunks)
     ID = 'IFhd'
     length = 13
     release_number = 0
