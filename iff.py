@@ -43,6 +43,7 @@ class chunk:
     length = 0
     data = b''
     raw_data = b'    \x00\x00\x00\x00'
+    address: int = 0
 
     def __repr__(self):
         return self.ID + ' chunk'
