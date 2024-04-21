@@ -552,7 +552,9 @@ class blorb:
                 self.adaptive_pictures = c.pictures
 
             if c.ID == looping_chunk.ID:
-                pass
+                c: looping_chunk
+                for a in c.sound_looping_data:
+                    self.sounds[a] = c.sound_looping_data[a]
             if c.ID == story_name_chunk.ID:
                 pass
 
