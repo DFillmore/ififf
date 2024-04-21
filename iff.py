@@ -13,30 +13,6 @@
 # GNU General Public License for more details.
 from __future__ import annotations
 
-def get_chunk(data, position=0):
-    chunk_length = int.from_bytes(data[position + 4:position + 8], byteorder='big')
-    if chunk_length % 2 == 1:
-        chunk_length += 1
-    c = data[position:position + 8 + chunk_length]
-    return c
-
-
-def split_chunks(data):
-    """find all the top-level chunks in a bytes object, and return a list with each chunk as an item of bytes"""
-    pos = 0
-    chunks = []
-    while pos < len(data):
-        c = get_chunk(data, pos)
-        pos += len(c)
-        chunks.append(c)
-    return chunks
-
-
-def identify_chunk(c):
-    if c.ID in chunk_types:
-        return chunk_types[c.ID](c.raw_data)
-    return c
-
 
 class chunk:
     ID = "    "
@@ -73,6 +49,34 @@ class chunk:
         """updates the raw_data using the chunk attributes"""
         length = len(self.data) + 8
         self.raw_data = self.ID.encode() + length.to_bytes(4, 'big') + self.data
+
+
+def get_chunk(data: bytes | chunk, position=0):
+    if isinstance(data, chunk):
+        data = data.raw_data[:]
+
+    chunk_length = int.from_bytes(data[position + 4:position + 8], byteorder='big')
+    if chunk_length % 2 == 1:
+        chunk_length += 1
+    c = data[position:position + 8 + chunk_length]
+    return c
+
+
+def split_chunks(data) -> list():
+    """find all the top-level chunks in a bytes object, and return a list with each chunk as an item of bytes"""
+    pos = 0
+    chunks = []
+    while pos < len(data):
+        c = get_chunk(data, pos)
+        pos += len(c)
+        chunks.append(c)
+    return chunks
+
+
+def identify_chunk(c):
+    if c.ID in chunk_types:
+        return chunk_types[c.ID](c.raw_data)
+    return c
 
 
 class form_chunk(chunk):
