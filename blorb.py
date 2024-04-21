@@ -812,20 +812,8 @@ class blorb:
         return self.metadata
 
     def getTitlePic(self):
-        resoplace = self.findChunk(b'Fspc')
-        if resoplace == None:
-            iFiction = self.getmetadata()
-            picnum = babel.getcoverpicture(iFiction)
-            if picnum != None:
-                pic = getpic(picnum, titlepic=True)
-            else:
-                pic = None
-            return pic
-        #rfile.seek(resoplace + 4)
-        #resosize = int.from_bytes(rfile.read(4), byteorder='big')
-        #if resosize != 4:
-        #    return None
-        #rfile.seek(resoplace+8)
-        #picnum = int.from_bytes(rfile.read(4), byteorder='big')
-        #pic = getpic(picnum, titlepic=True)
-        return None
+        try:
+            return self.images[self.title_pic]
+        except:
+            return None
+
