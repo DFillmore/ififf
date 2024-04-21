@@ -807,7 +807,7 @@ class blorb:
         metadata = self.data[resoplace + 8:resoplace + 8 + resosize]
         return metadata
 
-    def gettitlepic(self):
+    def getTitlePic(self):
         resoplace = self.findChunk(b'Fspc')
         if resoplace == None:
             iFiction = self.getmetadata()
