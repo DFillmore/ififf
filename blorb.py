@@ -207,7 +207,7 @@ class native_executable_chunk(iff.chunk):
 
 class color_palette_chunk(iff.chunk):
     ID = 'Plte'
-
+    palette: None | int | dict[str, int] = None
     def process_data(self):
         self.length = int.from_bytes(self.raw_data[4:8], byteorder='big')
         if self.length == 1:
@@ -220,7 +220,7 @@ class color_palette_chunk(iff.chunk):
                 colour['red'] = int.from_bytes(self.raw_data[8 + c * 3], byteorder='big')
                 colour['green'] = int.from_bytes(self.raw_data[9 + c * 3], byteorder='big')
                 colour['blue'] = int.from_bytes(self.raw_data[10 + c * 3], byteorder='big')
-                colours.append(colour)
+                self.palette.append(colour)
 
     def create_data(self):
         pass
@@ -528,7 +528,8 @@ class blorb:
             if c.ID == game_identifier_chunk.ID:
                 pass
             if c.ID == color_palette_chunk.ID:
-                pass
+                c: color_palette_chunk
+                self.color_palette = c.palette
             if c.ID == frontispiece_chunk.ID:
                 pass
             if c.ID == resource_description_chunk.ID:
