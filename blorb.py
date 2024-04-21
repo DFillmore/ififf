@@ -718,21 +718,6 @@ class blorb:
             if in_palette[a] != (0, 0, 0):
                 self.currentpalette[a] = in_palette[a][:]
         return in_palette
-    def findChunk(self, chunkname):
-        id = None
-        x = 12
-        while (id != chunkname) and (x < len(self.data)):
-            id = self.data[x:x + 4]
-            csize = int.from_bytes(self.data[x + 4:x + 8], byteorder='big')
-            if csize % 2 == 1:
-                csize += 1
-            if id == chunkname:
-                break
-            x += csize + 8
-        if id != chunkname:
-            return False
-        #x -= csize + 8
-        return x
 
     def listChunks(self):
         id = None
