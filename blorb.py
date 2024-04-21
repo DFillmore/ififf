@@ -546,7 +546,26 @@ class blorb:
                 c: release_number_chunk
                 self.release = c.number
             if c.ID == resolution_chunk.ID:
-                pass
+                c: resolution_chunk
+
+                self.screen.standard_width = c.screen['standard_width']
+                self.screen.standard_height = c.screen['standard_height']
+                self.screen.minimum_width = c.screen['minimum_width']
+                self.screen.minimum_height = c.screen['minimum_height']
+                self.screen.maximum_width = c.screen['maximum_width']
+                self.screen.maximum_height = c.screen['maximum_height']
+
+                for image_number in c.images:
+                    try:
+                        self.images[image_number].standard_numerator = c.images['standard_numerator']
+                        self.images[image_number].standard_denominator = c.images['standard_denominator']
+                        self.images[image_number].minimum_numerator = c.images['minimum_numerator']
+                        self.images[image_number].minimum_denominator = c.images['minimum_denominator']
+                        self.images[image_number].maximum_numerator = c.images['maximum_numerator']
+                        self.images[image_number].maximum_denominator = c.images['maximum_denominator']
+                    except:
+                        pass
+
             if c.ID == adaptive_palette_chunk.ID:
                 c: adaptive_palette_chunk
                 self.adaptive_pictures = c.pictures
