@@ -11,7 +11,7 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-
+from __future__ import annotations
 
 def get_chunk(data, position=0):
     chunk_length = int.from_bytes(data[position + 4:position + 8], byteorder='big')
