@@ -504,14 +504,20 @@ class NoExecChunk(Exception):
 
 class blorb:
     games = {}
-    picts = {}
+    images: dict[int, image] = {}
     sounds = {}
 
+    screen: screen = screen()
+
+    release = None
+    serial = None
+    checksum = None
+
+    metadata = None
+
+
     def __init__(self, blorb_chunk):
-        games = []
-        picts = []
-        sounds = []
-        datas = []
+        c: iff.chunk
         for c in blorb_chunk.sub_chunks:
             if c.ID == resource_index_chunk.ID:
                 self.resource_index = c.resources[:]
