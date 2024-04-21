@@ -519,17 +519,20 @@ class blorb:
         c: iff.chunk
         for c in blorb_chunk.sub_chunks:
             if c.ID == resource_index_chunk.ID:
-                self.resource_index = c.resources[:]
+                c: resource_index_chunk
 
-            if c.ID in game_ids:
-                games.append(c)
-            if c.ID in picture_ids:
-                picts.append(c)
-            if c.ID in sound_ids:
-                sounds.append(c)
-            if c.ID in data_ids:
-                datas.append(c)
-
+                res: resource
+                for res in c.resources:
+                    if res.usage == 'Exec':
+                        self.games[res.number] = iff.get_chunk(blorb_chunk, res.location)[8:]
+                    if res.usage == 'Pict':
+                        self.images[res.number] = image(iff.chunk(iff.get_chunk(blorb_chunk, res.location)), res.number)
+                    if res.usage == 'Snd ':
+                        sound_data = iff.get_chunk(blorb_chunk, res.location)[:]
+                        if sound_data[:4] == b'FORM':
+                            self.sounds[res.number] = sound_data
+                        else:
+                            self.sounds[res.number] = sound_data[8:]
             if c.ID == game_identifier_chunk.ID:
                 c: game_identifier_chunk
                 self.release = c.release_number
