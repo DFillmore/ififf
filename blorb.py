@@ -542,15 +542,15 @@ class blorb:
             if c.ID == metadata_chunk.ID:
                 c: metadata_chunk
                 self.metadata = c.xml
-            if c.ID == release_number_chunk:
+            if c.ID == release_number_chunk.ID:
                 pass
-            if c.ID == resolution_chunk:
+            if c.ID == resolution_chunk.ID:
                 pass
-            if c.ID == adaptive_palette_chunk:
+            if c.ID == adaptive_palette_chunk.ID:
                 pass
-            if c.ID == looping_chunk:
+            if c.ID == looping_chunk.ID:
                 pass
-            if c.ID == story_name_chunk:
+            if c.ID == story_name_chunk.ID:
                 pass
 
         for a in range(rescount):
