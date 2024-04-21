@@ -540,7 +540,8 @@ class blorb:
             if c.ID == resource_description_chunk.ID:
                 pass
             if c.ID == metadata_chunk.ID:
-                pass
+                c: metadata_chunk
+                self.metadata = c.xml
             if c.ID == release_number_chunk:
                 pass
             if c.ID == resolution_chunk:
