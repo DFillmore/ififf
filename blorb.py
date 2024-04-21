@@ -86,20 +86,18 @@ class blorb_chunk(iff.form_chunk):
 class resource_index_chunk(iff.chunk):
     ID = 'RIdx'
 
+    resources = []
+
     def process_data(self):
         self.length = int.from_bytes(self.raw_data[4:8], byteorder='big')
-        self.resource_count = int.from_bytes(self.raw_data[8:12], byteorder='big')
-        self.resources = {}
-        for r in range(self.resource_count):
+        resource_count = int.from_bytes(self.raw_data[8:12], byteorder='big')
+        self.resources = []
+        for r in range(resource_count):
             usage = self.raw_data[12 + r * 12:16 + r * 12].decode('ascii')
             resource_number = int.from_bytes(self.raw_data[16 + r * 12:20 + r * 12], byteorder='big')
             location = int.from_bytes(self.raw_data[20 + r * 12:24 + r * 12], byteorder='big')
-            res = resource(usage, resource_number, location)
-            try:
-                self.resources[usage]
-            except:
-                self.resources[usage] = []
-            self.resources[usage].append(res)
+            self.resources.append(resource(usage, resource_number, location))
+
 
     def create_data(self):
         pass
