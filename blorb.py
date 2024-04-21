@@ -535,7 +535,8 @@ class blorb:
                 c: color_palette_chunk
                 self.color_palette = c.palette
             if c.ID == frontispiece_chunk.ID:
-                pass
+                c: frontispiece_chunk
+                self.title_pic = c.picture_number
             if c.ID == resource_description_chunk.ID:
                 pass
             if c.ID == metadata_chunk.ID:
