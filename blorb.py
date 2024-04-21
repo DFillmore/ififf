@@ -27,6 +27,9 @@ class blorb_chunk(iff.form_chunk):
 
 
 class resource:
+    def __repr__(self):
+        return self.usage + ' resource number ' + str(self.number) + ' at ' + str(self.location)
+
     def __init__(self, usage, number, location):
         self.usage = usage
         self.number = number

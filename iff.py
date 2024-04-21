@@ -79,7 +79,7 @@ class form_chunk(chunk):
     sub_chunks = []
     subID = '    '
 
-    def __str__(self):
+    def __repr__(self):
         return self.ID + ' ' + self.subID + ' chunk'
 
     def process_data(self):
