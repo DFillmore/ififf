@@ -745,7 +745,7 @@ class blorb:
         scaleData['maxden'] = int.from_bytes(entry[24:28], byteorder='big')
         return scaleData
 
-    def getPalette(self, picnum, palette):
+    def adaptPalette(self, picnum, palette):
         global currentpalette
 
         if not palette:
