@@ -556,8 +556,8 @@ class blorb:
                 for a in c.sound_looping_data:
                     self.sounds[a] = c.sound_looping_data[a]
             if c.ID == story_name_chunk.ID:
-                pass
-
+                c: story_name_chunk
+                self.story_name = c.story_name
         for a in range(rescount):
             usage = self.data[x + (a * 12):x + (a * 12) + 4]
             resnum = int.from_bytes(self.data[x + (a * 12) + 4:x + (a * 12) + 8], byteorder='big')
