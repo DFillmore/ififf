@@ -22,10 +22,6 @@ from . import babel
 from .ifchunks import game_identifier_chunk
 
 
-class blorb_chunk(iff.form_chunk):
-    subID = 'IFRS'
-
-
 class resource:
     def __repr__(self):
         return self.usage + ' resource number ' + str(self.number) + ' at ' + str(self.location)
@@ -81,6 +77,10 @@ class screen:
     minimum_height: int = 1
     maximum_width: int = 1
     maximum_height: int = 1
+
+
+class blorb_chunk(iff.form_chunk):
+    subID = 'IFRS'
 
 
 class resource_index_chunk(iff.chunk):
