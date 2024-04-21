@@ -526,7 +526,11 @@ class blorb:
                 datas.append(c)
 
             if c.ID == game_identifier_chunk.ID:
-                pass
+                c: game_identifier_chunk
+                self.release = c.release_number
+                self.serial = c.serial_number
+                self.checksum = c.checksum
+
             if c.ID == color_palette_chunk.ID:
                 c: color_palette_chunk
                 self.color_palette = c.palette
