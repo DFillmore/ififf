@@ -325,11 +325,12 @@ class resolution_chunk(iff.chunk):
 
 class adaptive_palette_chunk(iff.chunk):
     ID = 'APal'
+    pictures = []
 
     def process_data(self):
         self.length = int.from_bytes(self.raw_data[4:8], byteorder='big')
         palette_count = self.length // 4
-        self.pictures = []
+
         for p in range(palette_count):
             picture_number = int.from_bytes(self.raw_data[8 + p * 4:12 + p * 4], byteorder='big')
             self.pictures.append(picture_number)
