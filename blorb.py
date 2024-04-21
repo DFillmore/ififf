@@ -474,10 +474,6 @@ class rect:
         return newRect
 
 
-currentpalette = [(0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0),
-                  (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0)]
-
-
 class InvalidBlorbFile(Exception):
     def __init__(self, value):
         self.value = value
@@ -515,6 +511,9 @@ class blorb:
 
     metadata = None
 
+    currentpalette = [(0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0),
+                      (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0)
+                     ]
 
     def __init__(self, blorb_chunk):
         c: iff.chunk
@@ -782,29 +781,18 @@ class blorb:
         scaleData['maxden'] = int.from_bytes(entry[24:28], byteorder='big')
         return scaleData
 
-    def adaptPalette(self, picnum, palette):
-        global currentpalette
+    def adaptPalette(self, picnum, in_palette):
+        in_palette = in_palette[:16]
+        if not in_palette or not self.currentpalette:
+            return in_palette
 
-        if not palette:
-            return None
-        palette = palette[:16]
-        pos = self.findChunk(b'APal')
-        if pos == 0:
-            return palette
-        csize = self.chunkSize(pos)
-        chunk = self.data[pos + 8:pos + 8 + csize]
-        numentries = csize // 4
-        entries = []
-        for a in range(numentries):
-            entries.append(int.from_bytes(chunk[4 * a:(4 * a) + 4], byteorder='big'))
+        if picnum in self.adaptive_pictures:
+            return self.currentpalette
 
-        if picnum in entries:
-            return currentpalette
-        for a in range(2, len(palette)):
-            if palette[a] != (0, 0, 0):
-                currentpalette[a] = palette[a][:]
-        return palette
-
+        for a in range(2, len(in_palette)):
+            if in_palette[a] != (0, 0, 0):
+                self.currentpalette[a] = in_palette[a][:]
+        return in_palette
     def findChunk(self, chunkname):
         id = None
         x = 12
