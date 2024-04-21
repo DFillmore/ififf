@@ -543,7 +543,8 @@ class blorb:
                 c: metadata_chunk
                 self.metadata = c.xml
             if c.ID == release_number_chunk.ID:
-                pass
+                c: release_number_chunk
+                self.release = c.number
             if c.ID == resolution_chunk.ID:
                 pass
             if c.ID == adaptive_palette_chunk.ID:
