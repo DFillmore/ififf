@@ -809,12 +809,7 @@ class blorb:
         return chunks
 
     def getMetaData(self):
-        resoplace = self.findChunk(b'IFmd')
-        if resoplace == False:
-            return None
-        resosize = self.chunkSize(resoplace)
-        metadata = self.data[resoplace + 8:resoplace + 8 + resosize]
-        return metadata
+        return self.metadata
 
     def getTitlePic(self):
         resoplace = self.findChunk(b'Fspc')
