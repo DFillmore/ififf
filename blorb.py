@@ -585,9 +585,9 @@ class blorb:
             if c.ID == story_name_chunk.ID:
                 c: story_name_chunk
                 self.story_name = c.story_name
-        for a in range(rescount):
-            usage = self.data[x + (a * 12):x + (a * 12) + 4]
-            resnum = int.from_bytes(self.data[x + (a * 12) + 4:x + (a * 12) + 8], byteorder='big')
+
+    def checkGame(self, game):
+        if not self.release:  # if there's no IFhd chunk, any game will do
             pos = int.from_bytes(self.data[x + (a * 12) + 8:x + (a * 12) + 12], byteorder='big')
             try:
                 self.resindex[usage][resnum] = pos
@@ -602,16 +602,7 @@ class blorb:
             x += 8
             self.release = (self.data[x] << 8) + self.data[x + 1]
 
-    def checkgame(self, game):
-        x = self.findChunk(b'IFhd')
-        if x == 0:
             return True
-        x += 8
-        idRelease = int.from_bytes(self.data[x:x + 2], byteorder='big')
-        x += 2
-        idSerial = self.data[x:x + 6]
-        x += 6
-        idChecksum = int.from_bytes(self.data[x:x + 2], byteorder='big')
 
         x = 2
         gameRelease = int.from_bytes(game[x:x + 2], byteorder='big')
@@ -619,7 +610,7 @@ class blorb:
         gameSerial = game[x:x + 6]
         x = 0x1C
         gameChecksum = int.from_bytes(game[x:x + 2], byteorder='big')
-        if gameRelease == idRelease and gameSerial == idSerial and gameChecksum == idChecksum:
+        if gameRelease == self.release and gameSerial == self.serial and gameChecksum == self.checksum:
             return True
         return False
 
