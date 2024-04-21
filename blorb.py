@@ -36,6 +36,53 @@ class resource:
         self.location = location
 
 
+class game:
+    number = None
+    type = None
+    title = None
+    author = None
+    description = None
+    data = b''
+
+
+class image:
+    number = None
+    type = None
+    data = b''
+    standard_numerator = 1
+    standard_denominator = 1
+    minimum_numerator = 0
+    minimum_denominator = 0
+    maximum_numerator = 0
+    maximum_denominator = 0
+
+    def __init__(self, pic_chunk, number):
+        self.type = pic_chunk.ID.strip()
+        self.data = pic_chunk.data
+        self.number = number
+
+
+class sound:
+    number = None
+    type = None
+    data = b''
+    loop = None
+
+    def __init__(self, snd_chunk, number):
+        self.type = snd_chunk.ID.decode('ascii').strip()
+        self.data = snd_chunk.data
+        self.number = number
+
+
+class screen:
+    standard_width: int = 1
+    standard_height: int = 1
+    minimum_width: int = 1
+    minimum_height: int = 1
+    maximum_width: int = 1
+    maximum_height: int = 1
+
+
 class resource_index_chunk(iff.chunk):
     ID = 'RIdx'
 
@@ -451,37 +498,6 @@ class NoExecChunk(Exception):
 
     def __str__(self):
         return repr(self.value)
-
-
-class game:
-    number = None
-    type = None
-    title = None
-    author = None
-    description = None
-    data = b''
-
-
-class pict:
-    number = None
-    type = None
-    data = b''
-
-    def __init__(self, pic_chunk, number):
-        self.type = pic_chunk.ID.decode('ascii').strip()
-        self.data = pic_chunk.data
-        self.number = number
-
-
-class sound:
-    number = None
-    type = None
-    data = b''
-
-    def __init__(self, snd_chunk, number):
-        self.type = snd_chunk.ID.decode('ascii').strip()
-        self.data = snd_chunk.data
-        self.number = number
 
 
 class blorb:
