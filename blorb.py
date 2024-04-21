@@ -289,9 +289,11 @@ class release_number_chunk(iff.chunk):
 class resolution_chunk(iff.chunk):
     ID = 'Reso'
 
+    screen = {}
+    images: dict[int, image] = {}
+
     def process_data(self):
         self.length = int.from_bytes(self.raw_data[4:8], byteorder='big')
-        self.screen = {}
         self.screen['standard_width'] = int.from_bytes(self.raw_data[8:12], byteorder='big')
         self.screen['standard_height'] = int.from_bytes(self.raw_data[12:16], byteorder='big')
         self.screen['minimum_width'] = int.from_bytes(self.raw_data[16:20], byteorder='big')
@@ -299,7 +301,6 @@ class resolution_chunk(iff.chunk):
         self.screen['maximum_width'] = int.from_bytes(self.raw_data[24:28], byteorder='big')
         self.screen['maximum_height'] = int.from_bytes(self.raw_data[28:32], byteorder='big')
 
-        self.images = {}
         resolutions_count = (self.length - 24) // 28
 
         for r in range(resolutions_count):
