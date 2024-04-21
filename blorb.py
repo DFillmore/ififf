@@ -548,7 +548,9 @@ class blorb:
             if c.ID == resolution_chunk.ID:
                 pass
             if c.ID == adaptive_palette_chunk.ID:
-                pass
+                c: adaptive_palette_chunk
+                self.adaptive_pictures = c.pictures
+
             if c.ID == looping_chunk.ID:
                 pass
             if c.ID == story_name_chunk.ID:
