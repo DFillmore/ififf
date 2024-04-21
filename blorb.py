@@ -588,20 +588,6 @@ class blorb:
 
     def checkGame(self, game):
         if not self.release:  # if there's no IFhd chunk, any game will do
-            pos = int.from_bytes(self.data[x + (a * 12) + 8:x + (a * 12) + 12], byteorder='big')
-            try:
-                self.resindex[usage][resnum] = pos
-            except:
-                self.resindex[usage] = {}
-                self.resindex[usage][resnum] = pos
-
-        x = self.findChunk(b'RelN')
-        if x == 0:
-            self.release = 0
-        else:
-            x += 8
-            self.release = (self.data[x] << 8) + self.data[x + 1]
-
             return True
 
         x = 2
@@ -615,104 +601,49 @@ class blorb:
         return False
 
     def getExec(self, execnum):
-        try:
-            x = self.resindex[b'Exec'][execnum]
-        except:
-            return False
-        size = self.chunkSize(x)
-        data = self.data[x + 8:x + 8 + size]
-        return data
+        return self.games[execnum].data
 
     def getExecFormat(self, execnum):
-        try:
-            x = self.resindex[b'Exec'][execnum]
-        except:
-            return False
-        type = self.chunkType(x)
-        return type
+        return self.games[execnum].ID
 
     def getPict(self, picnum):
-        try:
-            x = self.resindex[b'Pict'][picnum]
-        except:
-            return False
-        size = self.chunkSize(x)
-        data = self.data[x + 8:x + 8 + size]
-        return data
+        return self.images[picnum].data
 
     def getPictFormat(self, picnum):
-        try:
-            x = self.resindex[b'Pict'][picnum]
-        except:
-            return False
-        type = self.chunkType(x)
-        return type
+        return self.images[picnum].ID
 
     def getSnd(self, sndnum):
-        try:
-            x = self.resindex[b'Snd '][sndnum]
-        except:
-            return False
-        type = self.chunkType(x)
-        size = self.chunkSize(x)
-        if type == b'FORM':
-            data = self.data[x:x + 8 + size]
-        else:
-            data = self.data[x + 8:x + 8 + size]
-        return data
+        return self.sounds[sndnum]
 
     def getSndFormat(self, sndnum):
-        try:
-            x = self.resindex[b'Snd '][sndnum]
-        except:
-            return False
-        type = self.chunkType(x)
-        if type == b'FORM':
-            return b'AIFF'
-        else:
-            return type
+        return self.sounds[sndnum].ID
 
     def getSndType(self, sndnum):
         # AIFF Sounds = effect
         # Ogg Sounds = music
         # mod sounds = music
-        # Song Sounds = music (unsupported)
+        # Song Sounds = music
         format = self.getSndFormat(sndnum)
-        if format == b'AIFF':
+        if format == b'FORM':  # aiff
             return 0  # effect
         return 1  # music
 
     def getWinSizes(self):
-        x = self.findChunk(b'Reso')
-        if x == 0:
-            return None
-        resosize = self.chunkSize(x)
-        resochunk = self.data[x + 8:x + 8 + resosize]
-        x = 0
-        px = float(int.from_bytes(resochunk[x:x + 4], byteorder='big'))  # standard window width
-        x += 4
-        py = float(int.from_bytes(resochunk[x:x + 4], byteorder='big'))  # standard window height
-        x += 4
-        minx = int.from_bytes(resochunk[x:x + 4], byteorder='big')  # minimum window width
-        x += 4
-        miny = int.from_bytes(resochunk[x:x + 4], byteorder='big')  # minimum window height
-        x += 4
-        maxx = int.from_bytes(resochunk[x:x + 4], byteorder='big')  # maximum window width
-        x += 4
-        maxy = int.from_bytes(resochunk[x:x + 4], byteorder='big')  # maximum window height
-        return (px, py, minx, miny, maxx, maxy)
+        return (self.screen.standard_width, self.screen.standard_height,
+                self.screen.minimum_width, self.screen.minimum_height,
+                self.screen.maximum_width, self.screen.maximum_height
+               )
 
     def getScale(self, picnum, winx, winy):
-        scaleData = getScaleData(picnum)
 
         px, py, minx, miny, maxx, maxy = self.getWinSizes()
 
-        ratnum = scaleData['ratnum']
-        ratden = scaleData['ratden']
-        minnum = scaleData['minnum']
-        minden = scaleData['minden']
-        maxnum = scaleData['maxnum']
-        maxden = scaleData['maxden']
+        ratnum = self.images[picnum].standard_numerator
+        ratden = self.images[picnum].standard_denominator
+        minnum = self.images[picnum].minimum_numerator
+        minden = self.images[picnum].minimum_denominator
+        maxnum = self.images[picnum].maximum_numerator
+        maxden = self.images[picnum].maximum_denominator
 
         stdratio = ratnum / ratden
         if minnum != 0:
