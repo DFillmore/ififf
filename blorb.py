@@ -590,12 +590,9 @@ class blorb:
         if not self.release:  # if there's no IFhd chunk, any game will do
             return True
 
-        x = 2
-        gameRelease = int.from_bytes(game[x:x + 2], byteorder='big')
-        x = 0x12
-        gameSerial = game[x:x + 6]
-        x = 0x1C
-        gameChecksum = int.from_bytes(game[x:x + 2], byteorder='big')
+        gameRelease = int.from_bytes(game[2:4], byteorder='big')
+        gameSerial = game[0x12:0x18]
+        gameChecksum = int.from_bytes(game[0x1C:0x1E], byteorder='big')
         if gameRelease == self.release and gameSerial == self.serial and gameChecksum == self.checksum:
             return True
         return False
