@@ -75,7 +75,10 @@ def split_chunks(data) -> list():
 
 def identify_chunk(c):
     if c.ID in chunk_types:
-        return chunk_types[c.ID](c.raw_data)
+        c = chunk_types[c.ID](c.raw_data)
+    if c.ID in group_types: # any group chunk should have a 'type' identifier, which we're called a 'subID'
+        if c.subID in group_types[c.ID]:
+            return group_types[c.ID][c.subID](c.raw_data)
     return c
 
 
@@ -153,3 +156,5 @@ chunk_types = {'FORM': form_chunk,
                }
 
 form_types = {}
+
+group_types = {'FORM': form_types} # a list of chunk types that are 'groups'. The IFF standard defines three group chunks, which all function as top-level chunks (files). We only care about one type, though.
