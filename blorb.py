@@ -245,6 +245,7 @@ class resource_description_chunk(iff.chunk):
         self.length = int.from_bytes(self.raw_data[4:8], byteorder='big')
         entries_count = int.from_bytes(self.raw_data[8:12], byteorder='big')
         self.entries = {}
+        p = 0
         while p < self.length:
             usage = int.from_bytes(self.raw_data[12 + p:16 + p], byteorder='big')
             try:
@@ -253,7 +254,7 @@ class resource_description_chunk(iff.chunk):
                 self.entries[usage] = {}
             number = int.from_bytes(self.raw_data[16 + p:20 + p], byteorder='big')
             length = int.from_bytes(self.raw_data[20 + p:24 + p], byteorder='big')
-            text = self.raw_data[24 + d:24 + p + length].decode('utf-8')
+            text = self.raw_data[24 + p:24 + p + length].decode('utf-8')
             self.entries[usage][number] = text
             p += 24 + length
 
@@ -524,7 +525,7 @@ class blorb:
                 res: resource
                 for res in c.resources:
                     if res.usage == 'Exec':
-                        self.games[res.number] = iff.get_chunk(blorb_chunk, res.location)[8:]
+                        self.games[res.number] = iff.chunk(iff.get_chunk(blorb_chunk, res.location)[8:])
                     if res.usage == 'Pict':
                         self.images[res.number] = image(iff.chunk(iff.get_chunk(blorb_chunk, res.location)), res.number)
                     if res.usage == 'Snd ':
@@ -549,7 +550,7 @@ class blorb:
                 pass
             if c.ID == metadata_chunk.ID:
                 c: metadata_chunk
-                self.metadata = c.xml
+                self.metadata = c.xml[:]
             if c.ID == release_number_chunk.ID:
                 c: release_number_chunk
                 self.release = c.number
