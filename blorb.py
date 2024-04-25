@@ -525,7 +525,7 @@ class blorb:
                 res: resource
                 for res in c.resources:
                     if res.usage == 'Exec':
-                        self.games[res.number] = iff.chunk(iff.get_chunk(blorb_chunk, res.location)[8:])
+                        self.games[res.number] = iff.chunk(iff.get_chunk(blorb_chunk, res.location))
                     if res.usage == 'Pict':
                         self.images[res.number] = image(iff.chunk(iff.get_chunk(blorb_chunk, res.location)), res.number)
                     if res.usage == 'Snd ':
