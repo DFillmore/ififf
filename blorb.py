@@ -13,10 +13,6 @@
 # GNU General Public License for more details.
 from __future__ import annotations
 
-import tempfile
-import os
-import sys
-
 from . import iff
 from . import babel
 from .ifchunks import game_identifier_chunk
