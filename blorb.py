@@ -213,10 +213,10 @@ class color_palette_chunk(iff.chunk):
             self.palette = []
             colours = self.length // 3
             for c in range(colours):
-                colour = {}
-                colour['red'] = int.from_bytes(self.raw_data[8 + c * 3], byteorder='big')
-                colour['green'] = int.from_bytes(self.raw_data[9 + c * 3], byteorder='big')
-                colour['blue'] = int.from_bytes(self.raw_data[10 + c * 3], byteorder='big')
+                colour: dict[str, int] = {'red': int.from_bytes(self.raw_data[8 + c * 3], byteorder='big'),
+                                          'green': int.from_bytes(self.raw_data[9 + c * 3], byteorder='big'),
+                                          'blue': int.from_bytes(self.raw_data[10 + c * 3], byteorder='big')
+                                         }
                 self.palette.append(colour)
 
     def create_data(self):
