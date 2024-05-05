@@ -563,12 +563,12 @@ class blorb:
 
                 for image_number in c.images:
                     try:
-                        self.images[image_number].standard_numerator = c.images['standard_numerator']
-                        self.images[image_number].standard_denominator = c.images['standard_denominator']
-                        self.images[image_number].minimum_numerator = c.images['minimum_numerator']
-                        self.images[image_number].minimum_denominator = c.images['minimum_denominator']
-                        self.images[image_number].maximum_numerator = c.images['maximum_numerator']
-                        self.images[image_number].maximum_denominator = c.images['maximum_denominator']
+                        self.images[image_number].standard_numerator = c.images[image_number]['standard_numerator']
+                        self.images[image_number].standard_denominator = c.images[image_number]['standard_denominator']
+                        self.images[image_number].minimum_numerator = c.images[image_number]['minimum_numerator']
+                        self.images[image_number].minimum_denominator = c.images[image_number]['minimum_denominator']
+                        self.images[image_number].maximum_numerator = c.images[image_number]['maximum_numerator']
+                        self.images[image_number].maximum_denominator = c.images[image_number]['maximum_denominator']
                     except:
                         pass
 
