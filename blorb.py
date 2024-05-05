@@ -203,7 +203,8 @@ class native_executable_chunk(iff.chunk):
 
 class color_palette_chunk(iff.chunk):
     ID = 'Plte'
-    palette: None | int | dict[str, int] = None
+    palette: None | int | list = None
+
     def process_data(self):
         self.length = int.from_bytes(self.raw_data[4:8], byteorder='big')
         if self.length == 1:
@@ -286,7 +287,7 @@ class resolution_chunk(iff.chunk):
     ID = 'Reso'
 
     screen = {}
-    images: dict[int, image] = {}
+    images: dict[int, dict] = {}
 
     def process_data(self):
         self.length = int.from_bytes(self.raw_data[4:8], byteorder='big')
