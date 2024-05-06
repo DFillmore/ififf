@@ -663,44 +663,6 @@ class blorb:
             R = ERF * stdratio
         return R
 
-    def getScaleData(self, picnum):
-        x = self.findChunk(b'Reso')
-        scaleData = {'ratnum': 1,
-                     'ratden': 1,
-                     'minnum': 1,
-                     'minden': 1,
-                     'maxnum': 1,
-                     'maxden': 1
-                     }
-        if x == 0:
-            return scaleData
-        resosize = self.chunkSize(x)
-        resochunk = self.data[x + 8:x + 8 + resosize]
-        x = 24
-        entrydata = resochunk[x:]
-
-        entries = len(entrydata) // 28
-        found = False
-
-        for a in range(entries):
-            b = a * 28
-            entry = entrydata[b:b + 28]
-
-            if int.from_bytes(entry[:4], byteorder='big') == picnum:
-                found = True
-                break
-
-        if found == False:
-            return scaleData
-
-        scaleData['ratnum'] = int.from_bytes(entry[4:8], byteorder='big')
-        scaleData['ratden'] = int.from_bytes(entry[8:12], byteorder='big')
-        scaleData['minnum'] = int.from_bytes(entry[12:16], byteorder='big')
-        scaleData['minden'] = int.from_bytes(entry[16:20], byteorder='big')
-        scaleData['maxnum'] = int.from_bytes(entry[20:24], byteorder='big')
-        scaleData['maxden'] = int.from_bytes(entry[24:28], byteorder='big')
-        return scaleData
-
     def adaptPalette(self, picnum, in_palette):
         in_palette = in_palette[:16]
         if not in_palette or not self.currentpalette:
@@ -713,23 +675,6 @@ class blorb:
             if in_palette[a] != (0, 0, 0):
                 self.currentpalette[a] = in_palette[a][:]
         return in_palette
-
-    def listChunks(self):
-        id = None
-        x = 12
-        chunks = []
-        while (x < len(self.data)):
-            id = self.data[x:x + 4]
-            csize = int.from_bytes(self.data[x + 4:x + 8], byteorder='big')
-            c = {}
-            c['type'] = id
-            c['location'] = x
-            c['size'] = csize
-            chunks.append(c)
-            if csize % 2 == 1:
-                csize += 1
-            x += csize + 8
-        return chunks
 
     def getMetaData(self):
         return self.metadata
