@@ -618,8 +618,8 @@ class blorb:
         # Ogg Sounds = music
         # mod sounds = music
         # Song Sounds = music
-        format = self.getSndFormat(sndnum)
-        if format == b'FORM':  # aiff
+        sformat = self.getSndFormat(sndnum)
+        if sformat == b'FORM':  # aiff
             return 0  # effect
         return 1  # music
 
