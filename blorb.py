@@ -619,7 +619,7 @@ class blorb:
         # mod sounds = music
         # Song Sounds = music
         sformat = self.getSndFormat(sndnum)
-        if sformat == b'FORM':  # aiff
+        if sformat == 'FORM':  # aiff
             return 0  # effect
         return 1  # music
 
