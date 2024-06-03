@@ -528,9 +528,9 @@ class blorb:
                     if res.usage == 'Snd ':
                         sound_data = iff.get_chunk(blorb_chunk, res.location)[:]
                         if sound_data[:4] == b'FORM':
-                            self.sounds[res.number] = sound_data
+                            self.sounds[res.number] = sound(iff.chunk(sound_data), res.number)
                         else:
-                            self.sounds[res.number] = sound_data[8:]
+                            self.sounds[res.number] = sound(iff.chunk(sound_data[8:]), res.number)
             if c.ID == game_identifier_chunk.ID:
                 c: game_identifier_chunk
                 self.release = c.release_number
