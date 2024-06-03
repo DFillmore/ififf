@@ -61,7 +61,7 @@ class sound:
     loop = None
 
     def __init__(self, snd_chunk, number):
-        self.type = snd_chunk.ID.decode('ascii').strip()
+        self.type = snd_chunk.ID.strip()
         self.data = snd_chunk.data
         self.number = number
 
