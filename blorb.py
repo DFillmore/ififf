@@ -599,19 +599,19 @@ class blorb:
         return self.games[execnum].data
 
     def getExecFormat(self, execnum):
-        return self.games[execnum].ID
+        return self.games[execnum].type
 
     def getPict(self, picnum):
         return self.images[picnum].data
 
     def getPictFormat(self, picnum):
-        return self.images[picnum].ID
+        return self.images[picnum].type
 
     def getSnd(self, sndnum):
-        return self.sounds[sndnum]
+        return self.sounds[sndnum].data
 
     def getSndFormat(self, sndnum):
-        return self.sounds[sndnum].ID
+        return self.sounds[sndnum].type
 
     def getSndType(self, sndnum):
         # AIFF Sounds = effect
